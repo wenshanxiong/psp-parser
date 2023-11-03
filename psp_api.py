@@ -48,6 +48,7 @@ def catch_all(path):
   
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--port", type=int, default=6969, help="Parse tomorrow's prices")
+    parser.add_argument("-p", "--port", type=int, default=6969, help="API port number")
+    parser.add_argument("-d", "--debug", default=False, help="Run flask in debug mode", action="store_true")
     args = parser.parse_args()
-    app.run(debug=True, port=args.port)
+    app.run(debug=args.debug, port=args.port)
