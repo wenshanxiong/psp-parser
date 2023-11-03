@@ -9,8 +9,6 @@ from sqlite3 import OperationalError
 from time import sleep
 
 PSP_URL = 'https://www.ameren.com/illinois/account/customer-service/bill/power-smart-pricing/prices'
-PSP_DB = 'psp.db'
-PSP_TABLE = 'psp'
 LOG_FILE_PATH = 'psp.log'
 
 logging.basicConfig(filename=LOG_FILE_PATH,
@@ -20,12 +18,12 @@ logging.basicConfig(filename=LOG_FILE_PATH,
                     level=logging.INFO)
 
 def init_db():
-    con = sqlite3.connect(PSP_DB)
+    con = sqlite3.connect(queries.PSP_DB)
     cur = con.cursor()
     try:
         logging.info('Attempting to create table if not exists')
-        cur.execute(queries.get_create_table_query(PSP_TABLE))
-        logging.info(f'Table created. Name={PSP_TABLE}')
+        cur.execute(queries.get_create_table_query(queries.PSP_TABLE))
+        logging.info(f'Table created. Name={queries.PSP_TABLE}')
     except OperationalError:
         logging.info('Table already exists, skipped creation')
     return con

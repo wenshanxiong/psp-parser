@@ -1,5 +1,7 @@
 from sqlite3 import Date
-from psp_parser import PSP_TABLE
+
+PSP_DB = 'psp.db'
+PSP_TABLE = 'psp'
 
 def get_create_table_query(table_name):
     return f"""
@@ -62,3 +64,11 @@ INSERT INTO {PSP_TABLE} VALUES (
     {price_map[23]}
 );
 """
+
+def get_price_by_date(cursor, start, end):
+    query = f"SELECT * FROM {PSP_TABLE} WHERE date BETWEEN ? AND ?"
+    cursor.execute(query, (start, end))
+    result = {}
+    for row in cursor.fetchall():
+        result[row[0]] = list(row[1:])
+    return result
