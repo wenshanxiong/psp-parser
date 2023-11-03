@@ -5,11 +5,9 @@ import queries
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from sqlite3 import OperationalError
 from time import sleep
 
-CHROME_DRIVER_PATH = 'chromedriver-linux64/chromedriver'
 PSP_URL = 'https://www.ameren.com/illinois/account/customer-service/bill/power-smart-pricing/prices'
 PSP_DB = 'psp.db'
 PSP_TABLE = 'psp'
@@ -37,8 +35,7 @@ def parse_psp(con, parse_tomorrow):
 
     options = Options()
     options.add_argument('headless')
-    service = Service(CHROME_DRIVER_PATH)
-    driver = webdriver.Chrome(options=options, service=service)
+    driver = webdriver.Chrome(options=options)
     driver.get(PSP_URL)
 
     if parse_tomorrow:
@@ -57,6 +54,7 @@ def parse_psp(con, parse_tomorrow):
         price_cent = rows[h].find_elements(By.TAG_NAME, 'td')[1].text[:-1]
         price_map[h] = price_cent
     try:
+        print(price_map)
         cur = con.cursor()
         cur.execute(queries.get_insert_query(price_map))
         con.commit()
