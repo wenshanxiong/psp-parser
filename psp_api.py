@@ -51,4 +51,4 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--port", type=int, default=6969, help="API port number")
     parser.add_argument("-d", "--debug", default=False, help="Run flask in debug mode", action="store_true")
     args = parser.parse_args()
-    app.run(debug=args.debug, port=args.port)
+    app.run(host="0.0.0.0", debug=args.debug, port=args.port)
