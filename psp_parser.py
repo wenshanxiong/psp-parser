@@ -44,8 +44,11 @@ def parse_psp(con, parse_tomorrow):
         tomorrow_btn.click()
         sleep(5)
 
-    table = driver.find_element(By.XPATH, '/html/body/div[2]/ameren-manage-program/ng-component/section/div/div/div[3]/div/div[4]/div/table/tbody')
-    rows = table.find_elements(By.TAG_NAME, 'tr')
+    try:
+        table = driver.find_element(By.XPATH, '/html/body/div[2]/ameren-manage-program/ng-component/section/div/div/div[3]/div/div[4]/div/table/tbody')
+        rows = table.find_elements(By.TAG_NAME, 'tr')
+    except Exception:
+        logging.exception('Failed to find price table')
 
     if len(rows) != 24:
         logging.error(f'Incorrect number of rows parsed! Expect 24 but got {len(rows)}')
