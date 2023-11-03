@@ -34,7 +34,7 @@ def query_psp():
     else:
         return """
         <p>Where the date at dude??</p>
-        <p>Only /psp?date=[date] or /psp?start=[start_date]&end=[end_date] allowed.</p>
+        <p>Only /psp?date=[YYYY-MM-DD] or /psp?start=[YYYY-MM-DD]&end=[YYYY-MM-DD] accepted.</p>
         """
         
 @app.route('/', defaults={'path': ''})
@@ -42,7 +42,7 @@ def query_psp():
 def catch_all(path):
     return """
     <p>Sneaky sneaky.</p>
-    <p>Only /psp?date=[date] or /psp?start=[start_date]&end=[end_date] allowed.</p>
+    <p>Only /psp?date=[YYYY-MM-DD] or /psp?start=[YYYY-MM-DD]&end=[YYYY-MM-DD] accepted.</p>
     """
 
   
