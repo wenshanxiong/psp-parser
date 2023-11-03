@@ -47,6 +47,7 @@ def parse_psp(con, parse_tomorrow):
         rows = table.find_elements(By.TAG_NAME, 'tr')
     except Exception:
         logging.exception('Failed to find price table')
+        exit()
 
     if len(rows) != 24:
         logging.error(f'Incorrect number of rows parsed! Expect 24 but got {len(rows)}')
