@@ -1,8 +1,9 @@
 import datetime
 import sqlite3
+import queries
+import argparse
 from flask import Flask, request, jsonify
 from queries import PSP_DB
-import queries
 
 app = Flask(__name__)
 con = sqlite3.connect(PSP_DB, check_same_thread=False)
@@ -45,5 +46,8 @@ def catch_all(path):
     """
 
   
-if __name__ == '__main__': 
-    app.run(debug=True, port=5000)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--port", type=int, default=6969, help="Parse tomorrow's prices")
+    args = parser.parse_args()
+    app.run(debug=True, port=args.port)
