@@ -16,7 +16,7 @@ def validate_date(date_text):
         return False
 
 @app.route('/psp') 
-def query_example():
+def query_psp():
     date = request.args.get('date')
     start = request.args.get('start')
     end = request.args.get('end')
@@ -30,9 +30,20 @@ def query_example():
             return jsonify(queries.get_price_by_date(cur, start, end))
         else:
             return "<p>That ain't a date I reckon. Gimme YYYY-MM-DD</p>"
+    else:
+        return """
+        <p>Where the date at dude??</p>
+        <p>Only /psp?date=[date] or /psp?start=[start_date]&end=[end_date] allowed.</p>
+        """
+        
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    return """
+    <p>Sneaky sneaky.</p>
+    <p>Only /psp?date=[date] or /psp?start=[start_date]&end=[end_date] allowed.</p>
+    """
 
   
 if __name__ == '__main__': 
     app.run(debug=True, port=5000)
-
-# bids?start=01-01-2012&end=01-31-2012
