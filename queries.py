@@ -34,10 +34,10 @@ CREATE TABLE {table_name} (
 );
 """
 
-def get_insert_query(price_map):
+def get_insert_query(date, price_map):
     return f"""
 INSERT INTO {PSP_TABLE} VALUES (
-    '{str(Date.today())}',
+    '{date}',
     {price_map[0]},  
     {price_map[1]},
     {price_map[2]},

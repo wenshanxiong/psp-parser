@@ -2,6 +2,7 @@ import argparse
 import sqlite3
 import logging
 import queries
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -45,6 +46,9 @@ def parse_psp(con, parse_tomorrow):
     try:
         table = driver.find_element(By.XPATH, '/html/body/div[2]/ameren-manage-program/ng-component/section/div/div/div[3]/div/div[4]/div/table/tbody')
         rows = table.find_elements(By.TAG_NAME, 'tr')
+        date_text = driver.find_element(By.XPATH, '/html/body/div[2]/ameren-manage-program/ng-component/section/div/div/div[1]/span').text
+        parsed_date = datetime.strptime(date_text, "Hourly Prices for %B %d, %Y")
+        formatted_date = parsed_date.strftime("%Y-%m-%d")
     except Exception:
         logging.exception('Failed to find price table')
         exit()
@@ -59,7 +63,7 @@ def parse_psp(con, parse_tomorrow):
     try:
         print(price_map)
         cur = con.cursor()
-        cur.execute(queries.get_insert_query(price_map))
+        cur.execute(queries.get_insert_query(formatted_date, price_map))
         con.commit()
     except Exception:
         logging.exception('Error while inserting to DB')
