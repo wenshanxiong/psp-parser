@@ -24,19 +24,13 @@ def query_psp():
     if date:
         if validate_date(date):
             price_map = queries.get_price_by_date(cur, date, date)
-            if price_map:
-                return jsonify(queries.get_price_by_date(cur, date, date)), 200
-            else:
-                return "<p>Prices not found</p>", 404
+            return jsonify(price_map), 200 if price_map else 404
         else:
             return "<p>That ain't a date I reckon. Gimme YYYY-MM-DD</p>", 400
     elif start and end:
         if validate_date(start) and validate_date(end):
             price_map = queries.get_price_by_date(cur, start, end)
-            if price_map:
-                return jsonify(price_map)
-            else:
-                return "<p>Prices not found</p>", 404
+            return jsonify(price_map), 200 if price_map else 404
         else:
             return "<p>That ain't a date I reckon. Gimme YYYY-MM-DD</p>", 400
     else:
