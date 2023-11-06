@@ -25,17 +25,17 @@ def query_psp():
         if validate_date(date):
             return jsonify(queries.get_price_by_date(cur, date, date))
         else:
-            return "<p>That ain't a date I reckon. Gimme YYYY-MM-DD</p>"
+            return "<p>That ain't a date I reckon. Gimme YYYY-MM-DD</p>", 400
     elif start and end:
         if validate_date(start) and validate_date(end):
             return jsonify(queries.get_price_by_date(cur, start, end))
         else:
-            return "<p>That ain't a date I reckon. Gimme YYYY-MM-DD</p>"
+            return "<p>That ain't a date I reckon. Gimme YYYY-MM-DD</p>", 400
     else:
         return """
         <p>Where the date at dude??</p>
         <p>Only /psp?date=[YYYY-MM-DD] or /psp?start=[YYYY-MM-DD]&end=[YYYY-MM-DD] accepted.</p>
-        """
+        """, 400
         
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -43,7 +43,7 @@ def catch_all(path):
     return """
     <p>Sneaky sneaky.</p>
     <p>Only /psp?date=[YYYY-MM-DD] or /psp?start=[YYYY-MM-DD]&end=[YYYY-MM-DD] accepted.</p>
-    """
+    """, 400
 
   
 if __name__ == '__main__':
