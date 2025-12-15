@@ -8,28 +8,31 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from sqlite3 import OperationalError
 from time import sleep
+from logging.handlers import RotatingFileHandler
 
 PSP_URL = 'https://www.ameren.com/illinois/account/customer-service/bill/power-smart-pricing/prices'
 LOG_FILE_PATH = 'psp.log'
 
-logging.basicConfig(filename=LOG_FILE_PATH,
-                    filemode='a',
-                    format='%(asctime)s - %(message)s',
-                    datefmt='%d-%b-%y %H:%M:%S',
-                    level=logging.INFO)
+logger = logging.getLogger('__name__')
+logger.setLevel(logging.INFO)
+log_handler = RotatingFileHandler(LOG_FILE_PATH, maxBytes=5*1024*1024, backupCount=1)  # max size is 5MB, keep 1 backup
+log_handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+log_handler.setFormatter(formatter)
+logger.addHandler(log_handler)
 
 def init_db():
     con = sqlite3.connect(queries.PSP_DB)
     cur = con.cursor()
     try:
-        logging.info('Attempting to create table if not exists')
+        logger.info('Attempting to create table if not exists')
         cur.execute(queries.get_create_table_query(queries.PSP_TABLE))
-        logging.info(f'Table created. Name={queries.PSP_TABLE}')
+        logger.info(f'Table created. Name={queries.PSP_TABLE}')
     except OperationalError:
-        logging.info('Table already exists, skipped creation')
+        logger.info('Table already exists, skipped creation')
     return con
 
-def parse_psp(con, parse_tomorrow):
+def parse_psp(con, parse_tomorrow, parse_yesterday):
     price_map = {}
 
     options = Options()
@@ -39,8 +42,14 @@ def parse_psp(con, parse_tomorrow):
     driver.get(PSP_URL)
 
     if parse_tomorrow:
+        logger.info("Navigating to tomorrow's price")
         tomorrow_btn = driver.find_element(By.XPATH, '//*[@id="rtp-tomorrow"]')
         tomorrow_btn.click()
+        sleep(5)
+    elif parse_yesterday:
+        logger.info("Navigating to yesterday's price")
+        yesterday_btn = driver.find_element(By.XPATH, '//*[@id="rtp-previous-day"]')
+        yesterday_btn.click()
         sleep(5)
 
     try:
@@ -50,11 +59,11 @@ def parse_psp(con, parse_tomorrow):
         parsed_date = datetime.strptime(date_text, "Hourly Prices for %B %d, %Y")
         formatted_date = parsed_date.strftime("%Y-%m-%d")
     except Exception:
-        logging.exception('Failed to find price table')
+        logger.exception('Failed to find price table')
         exit()
 
     if len(rows) != 24:
-        logging.error(f'Incorrect number of rows parsed! Expect 24 but got {len(rows)}')
+        logger.error(f'Incorrect number of rows parsed! Expect 24 but got {len(rows)}')
         exit()
 
     for h in range(0, 24):
@@ -66,7 +75,7 @@ def parse_psp(con, parse_tomorrow):
         cur.execute(queries.get_insert_query(formatted_date, price_map))
         con.commit()
     except Exception:
-        logging.exception('Error while inserting to DB')
+        logger.exception('Error while inserting to DB')
     
     driver.quit()
     return price_map
@@ -75,10 +84,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--tomorrow", help="Parse tomorrow's prices",
                         action="store_true")
+    parser.add_argument("-y", "--yesterday", help="Parse yesterday's prices",
+                        action="store_true")
     args = parser.parse_args()
 
     con = init_db()
-    parse_psp(con, args.tomorrow)
+    parse_psp(con, args.tomorrow, args.yesterday)
     con.close()
 
 if __name__ == "__main__":
