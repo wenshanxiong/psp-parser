@@ -40,6 +40,11 @@ def parse_psp(con, parse_tomorrow, parse_yesterday):
     driver = webdriver.Chrome(options=options)
     driver.implicitly_wait(5)
     driver.get(PSP_URL)
+    
+    # Set preferred state cookie
+    driver.add_cookie({'name': 'PreferredState', 'value': 'en-US-il'})
+    driver.refresh()
+    sleep(2)
 
     if parse_tomorrow:
         logger.info("Navigating to tomorrow's price")
